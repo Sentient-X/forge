@@ -136,7 +136,7 @@ See [forge/filter/README.md](forge/filter/README.md) for full details.
 
 ## Dataset Registry
 
-A curated catalog of 23+ prominent robotics datasets — browse, search, and download by name instead of memorizing URIs.
+A curated catalog of 23+ prominent robotics datasets — browse, search, and download by name instead of memorizing URIs. **[Browse the registry online](https://arpitg1304.github.io/forge/registry.html)**
 
 ```bash
 # Browse all datasets
