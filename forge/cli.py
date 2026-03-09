@@ -2226,6 +2226,174 @@ def demo_cmd(
         console.print(f"  Paper: {entry.paper_url}")
 
 
+@app.command("segment")
+def segment_cmd(
+    path: str = typer.Argument(..., help="Path to dataset (local or hf://org/repo)"),
+    signal: str = typer.Option(
+        "observation.state",
+        "--signal",
+        help="Signal to segment: observation.state, qpos, action, joint_positions, joint_velocities",
+    ),
+    penalty: str = typer.Option("bic", "--penalty", "-p", help="PELT penalty: 'bic', 'aic', or numeric"),
+    cost_model: str = typer.Option("rbf", "--cost-model", help="PELT cost model: rbf, l2, l1, normal, ar"),
+    min_segment_length: int = typer.Option(10, "--min-segment-length", help="Minimum segment length in frames"),
+    normalize: bool = typer.Option(True, "--normalize/--no-normalize", help="Z-score normalize per dimension"),
+    sample: int = typer.Option(0, "--sample", "-s", help="Segment N episodes (0 = all)"),
+    export: Path | None = typer.Option(None, "--export", "-e", help="Export segmentation report to JSON"),
+    plot: Path | None = typer.Option(None, "--plot", help="Generate timeline visualization PNG"),
+    format: str | None = typer.Option(None, "--format", "-f", help="Format hint (auto-detected if omitted)"),
+) -> None:
+    """Detect phase transitions in episode signals via PELT changepoint detection.
+
+    Segments episodes into contiguous phases by running PELT on a proprioception
+    signal (observation.state by default). Outputs per-episode changepoints.
+
+    Examples:
+        forge segment ./dataset
+        forge segment ./dataset --signal action --penalty 5.0
+        forge segment ./dataset --export segments.json --plot timeline.png
+        forge segment hf://lerobot/aloha_sim_cube --sample 20
+    """
+    from rich.panel import Panel
+    from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn
+
+    from forge.core.exceptions import ForgeError, MissingDependencyError
+    from forge.formats.registry import FormatRegistry
+    from forge.segment import SegmentAnalyzer, SegmentConfig
+    from forge.segment.models import SegmentationReport
+
+    config = SegmentConfig(
+        signal=signal,
+        penalty=penalty,
+        cost_model=cost_model,
+        min_segment_length=min_segment_length,
+        normalize=normalize,
+    )
+
+    # Resolve path
+    resolved_path = _resolve_dataset_path(path)
+
+    if not resolved_path.exists():
+        console.print(f"[red]Error:[/red] Dataset not found: {resolved_path}")
+        raise typer.Exit(1)
+
+    # Detect format
+    try:
+        format_name = FormatRegistry.detect_format(resolved_path)
+        reader = FormatRegistry.get_reader(format_name)
+    except ForgeError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(1)
+
+    console.print(f"[cyan]Segmentation:[/cyan] {path}")
+    console.print(f"[dim]Format: {format_name} | Signal: {signal} | Penalty: {penalty} | Cost: {cost_model}[/dim]")
+    console.print()
+
+    analyzer = SegmentAnalyzer(config=config)
+    report = SegmentationReport(dataset_path=str(path))
+
+    try:
+        with Progress(
+            TextColumn("[bold green]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Segmenting episodes...", total=sample or None)
+
+            for i, episode in enumerate(reader.read_episodes(resolved_path)):
+                if sample > 0 and i >= sample:
+                    break
+
+                es = analyzer.segment_episode(episode)
+                report.per_episode.append(es)
+                progress.advance(task)
+
+            if sample == 0:
+                progress.update(
+                    task, total=len(report.per_episode), completed=len(report.per_episode)
+                )
+
+    except MissingDependencyError:
+        raise
+    except ForgeError as e:
+        console.print(f"[red]Error reading dataset:[/red] {e}")
+        raise typer.Exit(1)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted — showing partial results[/yellow]")
+
+    report.num_episodes = len(report.per_episode)
+    report.config = {
+        "signal": signal,
+        "penalty": penalty,
+        "cost_model": cost_model,
+        "min_segment_length": min_segment_length,
+        "normalize": normalize,
+    }
+    report.compute_summary()
+
+    if report.num_episodes == 0:
+        console.print("[yellow]No episodes segmented.[/yellow]")
+        raise typer.Exit(0)
+
+    # ── Display results ──
+    console.print()
+
+    # Summary table
+    table = Table(title="Segmentation Results", show_lines=False)
+    table.add_column("Episode", style="cyan")
+    table.add_column("Frames", justify="right")
+    table.add_column("Segments", justify="right", style="green")
+    table.add_column("Changepoints", style="dim")
+
+    for ep in report.per_episode:
+        cp_str = ", ".join(str(c) for c in ep.changepoints) if ep.changepoints else "-"
+        # Truncate long changepoint lists
+        if len(cp_str) > 50:
+            cp_str = cp_str[:47] + "..."
+        table.add_row(
+            ep.episode_id,
+            str(ep.num_frames),
+            str(ep.num_segments),
+            cp_str,
+        )
+
+    console.print(table)
+
+    # Summary panel
+    summary = report.summary
+    if summary:
+        lines = [
+            f"Episodes: {report.num_episodes}",
+            f"Mean segments/episode: [green]{summary.get('mean_segments', '?')}[/green]",
+            f"Range: {summary.get('min_segments', '?')} — {summary.get('max_segments', '?')}",
+            f"Total changepoints: {summary.get('total_changepoints', '?')}",
+        ]
+        panel = Panel(
+            "\n".join(lines),
+            title="Summary",
+            border_style="blue",
+            padding=(0, 2),
+        )
+        console.print(panel)
+
+    # JSON export
+    if export:
+        report.to_json(export)
+        console.print(f"\n[green]Report saved to:[/green] {export}")
+
+    # Plot
+    if plot:
+        try:
+            from forge.segment.plot import plot_segmentation
+
+            plot_segmentation(report, plot)
+            console.print(f"[green]Timeline saved to:[/green] {plot}")
+        except MissingDependencyError as e:
+            console.print(f"[red]Error:[/red] {e}")
+            raise typer.Exit(1)
+
+
 @app.command("version")
 def version_cmd() -> None:
     """Show Forge version."""

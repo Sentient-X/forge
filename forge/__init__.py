@@ -36,7 +36,6 @@ from forge.convert.converter import (
     Converter,
     convert,
 )
-from forge.filter.engine import FilterConfig, FilterEngine, FilterResult
 from forge.core.exceptions import (
     ConversionError,
     ForgeError,
@@ -57,8 +56,10 @@ from forge.core.models import (
     LazyArray,
     LazyImage,
 )
+from forge.filter.engine import FilterConfig, FilterEngine, FilterResult
 from forge.formats.registry import FormatRegistry
 from forge.inspect.inspector import InspectionOptions, Inspector
+from forge.segment import SegmentAnalyzer, SegmentationReport, SegmentConfig
 
 __version__ = "0.1.0"
 
@@ -96,6 +97,10 @@ __all__ = [
     "FilterConfig",
     "FilterEngine",
     "FilterResult",
+    # Segment
+    "SegmentAnalyzer",
+    "SegmentConfig",
+    "SegmentationReport",
     # Module-level functions
     "inspect",
     "convert",

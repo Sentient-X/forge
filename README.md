@@ -18,7 +18,7 @@
 <code>HDF5 ═══╝         ╚═══► RLDS</code>
 </p>
 
-Convert between robotics dataset formats with one command. Score demonstration quality with research-backed metrics.
+Convert between robotics dataset formats with one command. Score demonstration quality with research-backed metrics. Segment episodes into sub-skills with changepoint detection.
 
 | Format | Read | Write | Visualize | Notes |
 |--------|:----:|:-----:|:---------:|-------|
@@ -180,6 +180,21 @@ forge demo aloha_sim_cube    # or pick any demo-suitable dataset
 
 See [forge/registry/CONTRIBUTING.md](forge/registry/CONTRIBUTING.md) for how to add new datasets to the registry.
 
+## Episode Segmentation
+
+Automatic episode segmentation via PELT changepoint detection on proprioception signals. Splits episodes into contiguous phases (sub-skills, regime changes, idle periods) without video processing.
+
+```bash
+forge segment ./my_dataset
+forge segment hf://lerobot/droid_100 --export segments.json --plot timeline.png
+forge segment ./my_dataset --signal action --penalty bic --cost-model rbf
+forge segment ./my_dataset --sample 20
+```
+
+Detects where the statistical properties of the proprio signal change abruptly — e.g., transitions between reaching, grasping, and placing phases. Configurable cost models (`rbf`, `l2`, `l1`), penalty methods (`bic`, `aic`, or numeric), and signal selection (`observation.state`, `action`, `qpos`).
+
+See [forge/segment/README.md](forge/segment/README.md) for full details.
+
 ## CLI Reference
 
 See [docs/cli.md](docs/cli.md) for the full command reference including:
@@ -191,6 +206,7 @@ See [docs/cli.md](docs/cli.md) for the full command reference including:
 - `forge filter` - Quality-based episode filtering ([details](forge/filter/README.md))
 - `forge registry` - Browse and search the dataset registry
 - `forge demo` - Quick-start with a demo dataset
+- `forge segment` - Episode segmentation via changepoint detection ([details](forge/segment/README.md))
 - `forge stats` - Compute dataset statistics
 - `forge export-video` - Extract camera videos as MP4
 - `forge hub` - Search and download from HuggingFace

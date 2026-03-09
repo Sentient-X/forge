@@ -65,8 +65,11 @@ visualize = [
 registry = [
     "jinja2>=3.1.0",
 ]
+segment = [
+    "ruptures>=1.1.0",
+]
 all = [
-    "forge-robotics[rlds,lerobot,zarr,rosbag,hdf5,robodm,video,hub,visualize,registry]",
+    "forge-robotics[rlds,lerobot,zarr,rosbag,hdf5,robodm,video,hub,visualize,registry,segment]",
 ]
 dev = [
     "pytest>=7.4.0",
@@ -113,6 +116,7 @@ module = [
     "h5py.*",
     "robodm.*",
     "cv2.*",
+    "ruptures.*",
 ]
 ignore_missing_imports = true
 

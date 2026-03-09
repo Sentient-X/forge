@@ -193,6 +193,52 @@ See [forge/filter/README.md](../forge/filter/README.md) for full details.
 
 ---
 
+## forge segment
+
+Episode segmentation via PELT changepoint detection on proprioception signals. Splits episodes into contiguous phases (sub-skills, regime changes, idle periods) without video processing.
+
+```bash
+# Basic segmentation
+forge segment /path/to/dataset
+
+# From HuggingFace Hub
+forge segment hf://lerobot/droid_100
+
+# Export JSON report and timeline visualization
+forge segment /path/to/dataset --export segments.json --plot timeline.png
+
+# Choose signal and tune PELT parameters
+forge segment /path/to/dataset --signal action --penalty 5.0 --cost-model l2
+
+# Sample a subset of episodes
+forge segment /path/to/dataset --sample 20
+
+# Disable per-dimension normalization
+forge segment /path/to/dataset --no-normalize
+
+# Use AIC penalty instead of BIC
+forge segment /path/to/dataset --penalty aic --min-segment-length 15
+```
+
+**Options:**
+- `--signal`: Proprioception signal to segment on (`observation.state`, `qpos`, `action`, `joint_positions`, `joint_velocities`)
+- `--penalty`: PELT penalty — `bic` (default, adapts to signal length/dim), `aic` (less conservative), or a numeric value
+- `--cost-model`: Cost function for segment homogeneity (`rbf`, `l2`, `l1`, `normal`, `ar`)
+- `--min-segment-length`: Minimum segment length in frames (default: 10)
+- `--normalize / --no-normalize`: Z-score normalize per dimension (default: enabled)
+- `--sample`: Analyze a random subset of episodes
+- `--export`: Save JSON report with per-episode segmentation results
+- `--plot`: Generate a timeline PNG visualization
+- `--format`: Format hint for dataset loading
+
+**Output:** Per-episode changepoints, segment boundaries with frame/time durations, and dataset-level summary statistics (mean/median/min/max segments).
+
+**Dependencies:** Requires `ruptures>=1.1.0` — install with `pip install forge-robotics[segment]`. Timeline plotting requires `matplotlib>=3.7.0`.
+
+See [forge/segment/README.md](../forge/segment/README.md) for algorithm details and penalty selection guide.
+
+---
+
 ## forge stats
 
 Compute dataset statistics.
