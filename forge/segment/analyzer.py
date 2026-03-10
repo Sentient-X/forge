@@ -164,16 +164,24 @@ class SegmentAnalyzer:
         result.changepoints = changepoints
         result.segments = segments
         result.num_segments = len(segments)
+
+        # Label segments from signal alone (no gripper) when using array API
+        if self.config.label_phases:
+            self._label_segments(result, signal)
+
         return result
 
-    def _extract_signal(self, episode) -> tuple[np.ndarray, str]:
+    def _extract_signal(
+        self, episode, extract_gripper: bool = False
+    ) -> tuple[np.ndarray, str, np.ndarray | None]:
         """Extract the configured signal from an Episode as a (T, D) array.
 
         Args:
             episode: A forge.core.models.Episode object.
+            extract_gripper: Also extract gripper state in the same pass.
 
         Returns:
-            Tuple of (signal_array, actual_signal_name).
+            Tuple of (signal_array, actual_signal_name, gripper_array_or_None).
 
         Raises:
             ValueError: If the signal cannot be found in any frame.
@@ -190,6 +198,8 @@ class SegmentAnalyzer:
             fallback_attr = "joint_positions"
 
         signal_list: list[np.ndarray] = []
+        gripper_list: list[float] = []
+        gripper_available = extract_gripper
         actual_name = self.config.signal
 
         for frame in episode.frames():
@@ -204,13 +214,51 @@ class SegmentAnalyzer:
             if val is not None:
                 signal_list.append(np.asarray(val, dtype=np.float64))
 
+            # Extract gripper in same pass
+            if gripper_available:
+                g = frame.gripper_state
+                if g is None:
+                    g = frame.action_gripper
+                if g is None:
+                    gripper_available = False
+                else:
+                    gripper_list.append(float(g))
+
         if not signal_list:
             raise ValueError(
                 f"Signal '{self.config.signal}' not found in episode '{episode.episode_id}'. "
                 f"Frames have no '{attr}' data."
             )
 
-        return np.stack(signal_list), actual_name
+        gripper = None
+        if gripper_available and gripper_list:
+            gripper = np.array(gripper_list, dtype=np.float64)
+
+        return np.stack(signal_list), actual_name, gripper
+
+    def _label_segments(
+        self,
+        result: EpisodeSegmentation,
+        signal: np.ndarray,
+        frames: list | None = None,
+    ) -> None:
+        """Apply semantic phase labels to segments if configured."""
+        if not self.config.label_phases or not result.segments:
+            return
+
+        from forge.segment.labeler import PhaseLabeler, extract_gripper_signal
+
+        gripper = None
+        if frames is not None:
+            gripper = extract_gripper_signal(frames)
+            if gripper is None:
+                logger.debug(
+                    "No gripper data for %s — labeling without gripper",
+                    result.episode_id,
+                )
+
+        labeler = PhaseLabeler()
+        labeler.label_segments(result.segments, signal, gripper)
 
     def segment_episode(self, episode) -> EpisodeSegmentation:
         """Segment a Forge Episode object.
@@ -224,7 +272,9 @@ class SegmentAnalyzer:
             EpisodeSegmentation with detected changepoints.
         """
         try:
-            signal, actual_name = self._extract_signal(episode)
+            signal, actual_name, gripper = self._extract_signal(
+                episode, extract_gripper=self.config.label_phases
+            )
         except ValueError as e:
             logger.warning("Skipping episode %s: %s", episode.episode_id, e)
             return EpisodeSegmentation(
@@ -232,12 +282,20 @@ class SegmentAnalyzer:
                 signal_name=self.config.signal,
             )
 
-        return self.segment_episode_arrays(
+        result = self.segment_episode_arrays(
             episode_id=episode.episode_id,
             signal=signal,
             signal_name=actual_name,
             fps=episode.fps,
         )
+
+        # Re-label with gripper data if available (overrides signal-only labels)
+        if self.config.label_phases and gripper is not None:
+            from forge.segment.labeler import PhaseLabeler
+            labeler = PhaseLabeler()
+            labeler.label_segments(result.segments, signal, gripper)
+
+        return result
 
     def segment_dataset(
         self,

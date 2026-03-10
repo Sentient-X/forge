@@ -776,7 +776,7 @@
       <div class="feature-title">Episode Segmentation</div>
       <div class="feature-desc">PELT changepoint detection on proprioception signals. Automatically split episodes into sub-skills, regime changes, and idle periods.</div>
       <div class="feature-code">
-        <span class="prompt">$ </span><span class="cmd">forge segment</span> <span class="arg">./dataset</span> <span class="flag">--plot timeline.png</span>
+        <span class="prompt">$ </span><span class="cmd">forge segment</span> <span class="arg">./dataset</span> <span class="flag">--label --plot timeline.png</span>
       </div>
     </div>
 
@@ -873,29 +873,30 @@
         <div class="terminal-dot green"></div>
         <div class="terminal-title">forge segment</div>
       </div>
-      <div class="terminal-body"><span class="t-prompt">$ </span><span class="t-cmd">forge segment hf://lerobot/pusht --sample 8</span>
+      <div class="terminal-body"><span class="t-prompt">$ </span><span class="t-cmd">forge segment pusht --sample 8 --label --penalty aic</span>
 
-<span class="t-dim">Format: lerobot-v3 | Signal: observation.state | Penalty: bic</span>
+<span class="t-dim">Resolved from registry: PushT (lerobot)</span>
+<span class="t-dim">Format: lerobot-v3 | Signal: observation.state | Penalty: aic</span>
 
-<span class="t-header">                Segmentation Results</span>
-<span class="t-border">┏━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓</span>
-<span class="t-border">┃</span> <span class="t-bold">Episode</span>        <span class="t-border">┃</span> <span class="t-bold">Frames</span> <span class="t-border">┃</span> <span class="t-bold">Segments</span> <span class="t-border">┃</span> <span class="t-bold">Changepoints</span>    <span class="t-border">┃</span>
-<span class="t-border">┡━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━┩</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000000</span> <span class="t-border">│</span>    161 <span class="t-border">│</span>        <span class="t-green">4</span> <span class="t-border">│</span> <span class="t-dim">25, 66, 98</span>      <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000001</span> <span class="t-border">│</span>    118 <span class="t-border">│</span>        <span class="t-green">3</span> <span class="t-border">│</span> <span class="t-dim">46, 93</span>          <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000002</span> <span class="t-border">│</span>    141 <span class="t-border">│</span>        <span class="t-green">3</span> <span class="t-border">│</span> <span class="t-dim">25, 61</span>          <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000003</span> <span class="t-border">│</span>    159 <span class="t-border">│</span>        <span class="t-green">5</span> <span class="t-border">│</span> <span class="t-dim">30, 60, 83, 119</span> <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000004</span> <span class="t-border">│</span>    159 <span class="t-border">│</span>        <span class="t-green">4</span> <span class="t-border">│</span> <span class="t-dim">15, 78, 112</span>     <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000005</span> <span class="t-border">│</span>    157 <span class="t-border">│</span>        <span class="t-green">3</span> <span class="t-border">│</span> <span class="t-dim">33, 86</span>          <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000006</span> <span class="t-border">│</span>     69 <span class="t-border">│</span>        <span class="t-green">3</span> <span class="t-border">│</span> <span class="t-dim">14, 45</span>          <span class="t-border">│</span>
-<span class="t-border">│</span> <span class="t-cyan">episode_000007</span> <span class="t-border">│</span>    169 <span class="t-border">│</span>        <span class="t-green">4</span> <span class="t-border">│</span> <span class="t-dim">48, 94, 142</span>     <span class="t-border">│</span>
-<span class="t-border">└────────────────┴────────┴──────────┴─────────────────┘</span>
+<span class="t-header">                     Segmentation Results</span>
+<span class="t-border">┏━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<span class="t-border">┃</span> <span class="t-bold">Episode</span>        <span class="t-border">┃</span> <span class="t-bold">Frames</span> <span class="t-border">┃</span> <span class="t-bold">Segments</span> <span class="t-border">┃</span> <span class="t-bold">Changepoints</span>    <span class="t-border">┃</span> <span class="t-bold">Labels</span>                <span class="t-border">┃</span>
+<span class="t-border">┡━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000000</span> <span class="t-border">│</span>    161 <span class="t-border">│</span>        <span class="t-green">6</span> <span class="t-border">│</span> <span class="t-dim">20, 33, 63...</span>   <span class="t-border">│</span> <span class="t-yellow">moving -> fine_m...</span>  <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000001</span> <span class="t-border">│</span>    118 <span class="t-border">│</span>        <span class="t-green">6</span> <span class="t-border">│</span> <span class="t-dim">13, 34, 49...</span>   <span class="t-border">│</span> <span class="t-yellow">fine_m -> fine_m...</span> <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000002</span> <span class="t-border">│</span>    141 <span class="t-border">│</span>        <span class="t-green">7</span> <span class="t-border">│</span> <span class="t-dim">12, 27, 56...</span>   <span class="t-border">│</span> <span class="t-yellow">moving -> fine_m...</span>  <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000003</span> <span class="t-border">│</span>    159 <span class="t-border">│</span>        <span class="t-green">7</span> <span class="t-border">│</span> <span class="t-dim">28, 42, 60...</span>   <span class="t-border">│</span> <span class="t-yellow">fine_m -> fine_m...</span> <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000004</span> <span class="t-border">│</span>    159 <span class="t-border">│</span>        <span class="t-green">8</span> <span class="t-border">│</span> <span class="t-dim">12, 22, 45...</span>   <span class="t-border">│</span> <span class="t-yellow">moving -> fine_m...</span>  <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000005</span> <span class="t-border">│</span>    157 <span class="t-border">│</span>        <span class="t-green">6</span> <span class="t-border">│</span> <span class="t-dim">30, 47, 83...</span>   <span class="t-border">│</span> <span class="t-yellow">moving -> moving...</span>  <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000006</span> <span class="t-border">│</span>     69 <span class="t-border">│</span>        <span class="t-green">4</span> <span class="t-border">│</span> <span class="t-dim">14, 46, 57</span>      <span class="t-border">│</span> <span class="t-yellow">fine_m -> moving...</span>  <span class="t-border">│</span>
+<span class="t-border">│</span> <span class="t-cyan">episode_000007</span> <span class="t-border">│</span>    169 <span class="t-border">│</span>        <span class="t-green">7</span> <span class="t-border">│</span> <span class="t-dim">12, 43, 59...</span>   <span class="t-border">│</span> <span class="t-yellow">moving -> fine_m...</span>  <span class="t-border">│</span>
+<span class="t-border">└────────────────┴────────┴──────────┴─────────────────┴───────────────────────┘</span>
 
 <span class="t-border">╭──────────────────</span> <span class="t-header">Summary</span> <span class="t-border">──────────────────╮</span>
 <span class="t-border">│</span>  Episodes: <span class="t-bold">8</span>                                <span class="t-border">│</span>
-<span class="t-border">│</span>  Mean segments/episode: <span class="t-green">3.62</span>                <span class="t-border">│</span>
-<span class="t-border">│</span>  Range: 3 — 5                               <span class="t-border">│</span>
-<span class="t-border">│</span>  Total changepoints: <span class="t-bold">21</span>                     <span class="t-border">│</span>
+<span class="t-border">│</span>  Mean segments/episode: <span class="t-green">6.38</span>                <span class="t-border">│</span>
+<span class="t-border">│</span>  Range: 4 — 8                               <span class="t-border">│</span>
+<span class="t-border">│</span>  Total changepoints: <span class="t-bold">43</span>                     <span class="t-border">│</span>
 <span class="t-border">╰───────────────────────────────────────────╯</span></div>
     </div>
 
@@ -936,7 +937,7 @@
     <!-- Segmentation Timeline Image -->
     <div class="demo-full" style="text-align: center;">
       <div style="margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.85rem;">
-        <span style="font-family: 'JetBrains Mono', monospace;">forge segment --plot timeline.png</span> — changepoint-detected phase transitions
+        <span style="font-family: 'JetBrains Mono', monospace;">forge segment pusht --label --plot timeline.png</span> — semantic phase labels via proprioception
       </div>
       <img src="assets/segment_timeline.png" alt="Segmentation timeline visualization" class="demo-img">
     </div>

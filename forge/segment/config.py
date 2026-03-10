@@ -27,3 +27,4 @@ class SegmentConfig:
     min_segment_length: int = 10
     normalize: bool = True
     min_frames: int = 5
+    label_phases: bool = False

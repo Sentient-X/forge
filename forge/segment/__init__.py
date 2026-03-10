@@ -14,11 +14,13 @@ Usage::
 
 from forge.segment.analyzer import SegmentAnalyzer
 from forge.segment.config import SegmentConfig
+from forge.segment.labeler import PhaseLabeler
 from forge.segment.models import EpisodeSegmentation, SegmentationReport
 
 __all__ = [
     "SegmentAnalyzer",
     "SegmentConfig",
     "EpisodeSegmentation",
+    "PhaseLabeler",
     "SegmentationReport",
 ]

@@ -16,6 +16,7 @@ class Segment:
     end: int
     duration_frames: int
     duration_seconds: float | None = None
+    label: str = ""
 
 
 @dataclass
@@ -44,6 +45,7 @@ class EpisodeSegmentation:
                     "end": s.end,
                     "duration_frames": s.duration_frames,
                     "duration_seconds": s.duration_seconds,
+                    "label": s.label,
                 }
                 for s in self.segments
             ],
@@ -79,6 +81,16 @@ class SegmentationReport:
             "max_segments": max(counts),
             "total_changepoints": sum(len(ep.changepoints) for ep in self.per_episode),
         }
+
+        # Add label distribution if any segments are labeled
+        from collections import Counter
+        label_counts: Counter[str] = Counter()
+        for ep in self.per_episode:
+            for seg in ep.segments:
+                if seg.label:
+                    label_counts[seg.label] += 1
+        if label_counts:
+            self.summary["label_distribution"] = dict(label_counts.most_common())
 
     def to_dict(self) -> dict:
         return {
@@ -119,6 +131,7 @@ class SegmentationReport:
                     end=s["end"],
                     duration_frames=s["duration_frames"],
                     duration_seconds=s.get("duration_seconds"),
+                    label=s.get("label", ""),
                 )
                 for s in ep_data.get("segments", [])
             ]

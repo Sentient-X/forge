@@ -2241,6 +2241,7 @@ def segment_cmd(
     sample: int = typer.Option(0, "--sample", "-s", help="Segment N episodes (0 = all)"),
     export: Path | None = typer.Option(None, "--export", "-e", help="Export segmentation report to JSON"),
     plot: Path | None = typer.Option(None, "--plot", help="Generate timeline visualization PNG"),
+    label: bool = typer.Option(False, "--label/--no-label", help="Apply semantic phase labels to segments"),
     format: str | None = typer.Option(None, "--format", "-f", help="Format hint (auto-detected if omitted)"),
 ) -> None:
     """Detect phase transitions in episode signals via PELT changepoint detection.
@@ -2268,6 +2269,7 @@ def segment_cmd(
         cost_model=cost_model,
         min_segment_length=min_segment_length,
         normalize=normalize,
+        label_phases=label,
     )
 
     # Resolve path
@@ -2329,6 +2331,7 @@ def segment_cmd(
         "cost_model": cost_model,
         "min_segment_length": min_segment_length,
         "normalize": normalize,
+        "label_phases": label,
     }
     report.compute_summary()
 
@@ -2345,18 +2348,26 @@ def segment_cmd(
     table.add_column("Frames", justify="right")
     table.add_column("Segments", justify="right", style="green")
     table.add_column("Changepoints", style="dim")
+    if label:
+        table.add_column("Labels", style="yellow")
 
     for ep in report.per_episode:
         cp_str = ", ".join(str(c) for c in ep.changepoints) if ep.changepoints else "-"
         # Truncate long changepoint lists
         if len(cp_str) > 50:
             cp_str = cp_str[:47] + "..."
-        table.add_row(
+        row = [
             ep.episode_id,
             str(ep.num_frames),
             str(ep.num_segments),
             cp_str,
-        )
+        ]
+        if label:
+            labels_str = " -> ".join(s.label or "?" for s in ep.segments) if ep.segments else "-"
+            if len(labels_str) > 60:
+                labels_str = labels_str[:57] + "..."
+            row.append(labels_str)
+        table.add_row(*row)
 
     console.print(table)
 
