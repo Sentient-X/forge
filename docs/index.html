@@ -780,9 +780,21 @@
       </div>
     </div>
 
-    <!-- Registry -->
+    <!-- Visualize -->
     <div class="feature-card c-teal">
       <div class="feature-icon teal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="feature-title">Web Visualizer</div>
+      <div class="feature-desc">Browser-based viewer with multi-camera support, action/state charts, timeline scrubber, and segment overlay. Zero extra dependencies.</div>
+      <div class="feature-code">
+        <span class="prompt">$ </span><span class="cmd">forge visualize</span> <span class="arg">pusht</span> <span class="flag">--segment</span>
+      </div>
+    </div>
+
+    <!-- Registry -->
+    <div class="feature-card c-blue">
+      <div class="feature-icon blue">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       </div>
       <div class="feature-title">Dataset Registry</div>
@@ -940,6 +952,96 @@
         <span style="font-family: 'JetBrains Mono', monospace;">forge segment pusht --label --plot timeline.png</span> — semantic phase labels via proprioception
       </div>
       <img src="assets/segment_timeline.png" alt="Segmentation timeline visualization" class="demo-img">
+    </div>
+
+    <!-- Web Visualizer -->
+    <div class="demo-full" style="text-align: center; margin-top: 2rem;">
+      <div style="margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.85rem;">
+        <span style="font-family: 'JetBrains Mono', monospace;">forge visualize pusht --segment</span> — browser-based viewer with segment overlay
+      </div>
+
+      <!-- Viewer mockup -->
+      <div style="border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-lg); text-align: left; background: #0f1117; max-width: 900px; margin: 0 auto;">
+        <!-- Header bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; background: #1a1d2e; border-bottom: 1px solid #2a2d3e;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.95rem; font-weight: 600; color: #6c9fff;">Forge Viewer</span>
+            <span style="display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; background: #6c9fff; color: #0f1117;">lerobot-v3</span>
+          </div>
+          <span style="font-size: 0.75rem; color: #8b8fa3; font-family: 'JetBrains Mono', monospace;">206 episodes · 25,650 frames · 10 fps</span>
+        </div>
+
+        <!-- Camera area -->
+        <div style="display: flex; align-items: center; justify-content: center; padding: 12px; background: #0f1117; min-height: 160px;">
+          <div style="width: 192px; height: 192px; background: #1a1d2e; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="opacity: 0.5;">
+              <rect x="15" y="8" width="30" height="12" rx="2" fill="#6c9fff" opacity="0.6"/>
+              <rect x="22" y="20" width="16" height="25" rx="2" fill="#6c9fff" opacity="0.4"/>
+              <circle cx="30" cy="52" r="5" fill="#66bb6a" opacity="0.5"/>
+            </svg>
+            <div style="position: absolute; bottom: 4px; left: 6px; font-size: 0.6rem; color: #8b8fa3;">image (96×96)</div>
+          </div>
+        </div>
+
+        <!-- Controls bar -->
+        <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.8rem; background: #1a1d2e; border-top: 1px solid #2a2d3e; border-bottom: 1px solid #2a2d3e; flex-wrap: wrap;">
+          <span style="background: #252838; border: 1px solid #2a2d3e; border-radius: 4px; padding: 0.2rem 0.4rem; font-size: 0.75rem; color: #e4e4e7; min-width: 80px; text-align: center;">Episode 0</span>
+          <span style="background: #6c9fff; color: #0f1117; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; font-weight: 600; cursor: default;">Pause</span>
+          <span style="background: #252838; border: 1px solid #2a2d3e; border-radius: 4px; padding: 0.2rem 0.4rem; font-size: 0.75rem; color: #e4e4e7;">1x</span>
+
+          <!-- Timeline with segments -->
+          <div style="flex: 1; min-width: 120px; position: relative; height: 20px;">
+            <!-- Segment colors -->
+            <div style="position: absolute; top: 4px; left: 0; right: 0; height: 12px; border-radius: 3px; overflow: hidden; display: flex;">
+              <div style="width: 12%; background: #29b6f6; opacity: 0.7;" title="moving"></div>
+              <div style="width: 18%; background: #fdd835; opacity: 0.7;" title="fine_manipulation"></div>
+              <div style="width: 15%; background: #29b6f6; opacity: 0.7;" title="moving"></div>
+              <div style="width: 22%; background: #fdd835; opacity: 0.7;" title="fine_manipulation"></div>
+              <div style="width: 10%; background: #29b6f6; opacity: 0.7;" title="moving"></div>
+              <div style="width: 23%; background: #fdd835; opacity: 0.7;" title="fine_manipulation"></div>
+            </div>
+            <!-- Playhead marker -->
+            <div style="position: absolute; top: 2px; left: 35%; width: 2px; height: 16px; background: #ef5350; border-radius: 1px; z-index: 2;"></div>
+          </div>
+
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #8b8fa3;">56 / 161</span>
+          <span style="background: #fdd835; color: #000; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.7rem; font-weight: 600;">fine_manipulation</span>
+
+          <!-- Legend -->
+          <div style="display: flex; gap: 0.5rem; font-size: 0.65rem; color: #8b8fa3;">
+            <span style="display: flex; align-items: center; gap: 0.2rem;"><span style="width: 8px; height: 8px; border-radius: 2px; background: #29b6f6; display: inline-block;"></span>moving</span>
+            <span style="display: flex; align-items: center; gap: 0.2rem;"><span style="width: 8px; height: 8px; border-radius: 2px; background: #fdd835; display: inline-block;"></span>fine_manipulation</span>
+            <span style="display: flex; align-items: center; gap: 0.2rem;"><span style="width: 8px; height: 8px; border-radius: 2px; background: #9e9e9e; display: inline-block;"></span>idle</span>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div style="display: flex; gap: 2px; padding: 4px; background: #0f1117; height: 80px;">
+          <!-- Actions chart -->
+          <div style="flex: 1; background: #1a1d2e; border-radius: 4px; position: relative; overflow: hidden;">
+            <span style="position: absolute; top: 4px; left: 6px; font-size: 0.65rem; color: #8b8fa3;">Actions</span>
+            <svg width="100%" height="100%" viewBox="0 0 200 70" preserveAspectRatio="none" style="padding-top: 14px;">
+              <polyline points="0,50 15,48 30,35 50,20 70,38 90,42 110,15 130,28 150,45 170,30 190,35 200,40" fill="none" stroke="#6c9fff" stroke-width="1.2" opacity="0.7"/>
+              <polyline points="0,40 15,42 30,50 50,35 70,28 90,55 110,45 130,30 150,38 170,50 190,42 200,45" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.7"/>
+              <line x1="70" y1="14" x2="70" y2="65" stroke="#ef5350" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>
+            </svg>
+          </div>
+          <!-- States chart -->
+          <div style="flex: 1; background: #1a1d2e; border-radius: 4px; position: relative; overflow: hidden;">
+            <span style="position: absolute; top: 4px; left: 6px; font-size: 0.65rem; color: #8b8fa3;">States</span>
+            <svg width="100%" height="100%" viewBox="0 0 200 70" preserveAspectRatio="none" style="padding-top: 14px;">
+              <polyline points="0,55 20,50 40,45 60,30 80,25 100,28 120,20 140,35 160,40 180,30 200,25" fill="none" stroke="#6c9fff" stroke-width="1.2" opacity="0.7"/>
+              <polyline points="0,45 20,48 40,40 60,45 80,30 100,35 120,40 140,25 160,30 180,45 200,40" fill="none" stroke="#66bb6a" stroke-width="1.2" opacity="0.7"/>
+              <line x1="70" y1="14" x2="70" y2="65" stroke="#ef5350" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Keyboard hint -->
+        <div style="text-align: right; padding: 2px 8px 4px; font-size: 0.55rem; color: #5e6e8a;">
+          Space: Play/Pause &nbsp; ←→: Frame &nbsp; ↑↓: Episode &nbsp; [/]: Speed
+        </div>
+      </div>
     </div>
   </div>
 </section>
