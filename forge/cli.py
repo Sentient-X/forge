@@ -765,7 +765,7 @@ def visualize_cmd(
     ),
     episode: int = typer.Option(0, "--episode", "-e", help="Starting episode index"),
     backend: str = typer.Option(
-        "web", "--backend", "-b", help="Viewer backend: web (default), matplotlib, opencv"
+        "web", "--backend", "-b", help="Viewer backend: web (default), matplotlib, opencv, rerun"
     ),
     samples: int = typer.Option(10, "--samples", "-s", help="Max episodes to load"),
     segment: bool = typer.Option(False, "--segment", help="Run segmentation and show phase labels"),
@@ -781,6 +781,7 @@ def visualize_cmd(
         web: Browser-based viewer (default). Segment overlay, keyboard controls.
         matplotlib: Interactive with sliders. Slower playback.
         opencv: Fast playback with keyboard controls. No comparison mode.
+        rerun: Rerun viewer. Images, time-series, and segment labels on one timeline.
 
     Examples:
         forge visualize pusht
@@ -788,6 +789,8 @@ def visualize_cmd(
         forge visualize hf://lerobot/pusht --backend matplotlib
         forge visualize original/ --compare converted/
         forge visualize dataset/ --backend opencv
+        forge visualize dataset/ --backend rerun
+        forge visualize dataset/ --backend rerun --episode 2 --segment
     """
     from forge.core.exceptions import ForgeError
 
@@ -842,6 +845,19 @@ def visualize_cmd(
             if episode > 0:
                 viewer.current_episode = min(episode, viewer.backend.get_num_episodes() - 1)
             viewer.show()
+        elif backend.lower() == "rerun":
+            if resolved_compare:
+                console.print("[yellow]Warning:[/yellow] Comparison mode not supported with rerun backend")
+
+            console.print(f"[cyan]Opening Rerun viewer for:[/cyan] {resolved_path}")
+            if segment:
+                console.print("[dim]Segmentation with phase labels enabled[/dim]")
+            console.print()
+
+            from forge.visualize.rerun_backend import visualize_rerun
+
+            visualize_rerun(resolved_path, episode_idx=episode, segment=segment, max_episodes=samples)
+
         else:
             # Matplotlib backend
             if resolved_compare:

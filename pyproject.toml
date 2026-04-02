@@ -68,8 +68,11 @@ registry = [
 segment = [
     "ruptures>=1.1.0",
 ]
+rerun = [
+    "rerun-sdk>=0.16.0",
+]
 all = [
-    "forge-robotics[rlds,lerobot,zarr,rosbag,hdf5,robodm,video,hub,visualize,registry,segment]",
+    "forge-robotics[rlds,lerobot,zarr,rosbag,hdf5,robodm,video,hub,visualize,registry,segment,rerun]",
 ]
 dev = [
     "pytest>=7.4.0",
@@ -117,6 +120,7 @@ module = [
     "robodm.*",
     "cv2.*",
     "ruptures.*",
+    "rerun.*",
 ]
 ignore_missing_imports = true
 

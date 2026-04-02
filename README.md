@@ -196,13 +196,35 @@ Detects where the statistical properties of the proprio signal change abruptly �
 
 See [forge/segment/README.md](forge/segment/README.md) for full details.
 
+## Visualization
+
+Forge ships three visualization backends selectable with `--backend`:
+
+```bash
+forge visualize pusht                             # web (default) — browser-based, no install
+forge visualize pusht --backend matplotlib        # matplotlib — sliders, comparison mode
+forge visualize pusht --backend rerun             # Rerun — cameras + time-series on one timeline
+forge visualize pusht --backend rerun --segment   # with PELT phase labels
+forge visualize pusht --backend rerun --samples 3 # stream multiple episodes
+```
+
+The **Rerun backend** logs each frame's camera images, per-dimension action and state scalars, and segment labels into the [Rerun](https://rerun.io) viewer — all aligned on a shared `frame` timeline.
+
+![Rerun viewer showing camera stream alongside action and state time series](docs/assets/rerun_viz.png)
+
+Install the Rerun extra to use it:
+
+```bash
+pip install "forge-robotics[rerun]"
+```
+
 ## CLI Reference
 
 See [docs/cli.md](docs/cli.md) for the full command reference including:
 
 - `forge inspect` - Dataset inspection and schema analysis
 - `forge convert` - Format conversion with camera mapping
-- `forge visualize` - Interactive dataset viewer
+- `forge visualize` - Interactive dataset viewer (backends: `web`, `matplotlib`, `rerun`)
 - `forge quality` - Episode-level quality scoring ([details](forge/quality/README.md))
 - `forge filter` - Quality-based episode filtering ([details](forge/filter/README.md))
 - `forge registry` - Browse and search the dataset registry
