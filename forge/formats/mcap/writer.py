@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from forge.core.models import DatasetInfo, Episode
-from forge.formats.registry import FormatRegistry
 
 
 @dataclass
@@ -23,7 +22,10 @@ class MCAPWriterConfig:
     attachments: list[Path] = field(default_factory=list)
 
 
-@FormatRegistry.register_writer("mcap")
+# NOTE: MCAPWriter is intentionally NOT registered via @FormatRegistry.register_writer
+# until PR3 lands a working implementation. Registering the stub would cause
+# `forge formats` to falsely advertise MCAP write capability and `forge convert
+# ... --format mcap` to raise NotImplementedError instead of UnsupportedFormatError.
 class MCAPWriter:
     @property
     def format_name(self) -> str:
