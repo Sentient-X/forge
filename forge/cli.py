@@ -442,10 +442,18 @@ def inspect_cmd(
 def _generate_config_template(info: "DatasetInfo", output_path: Path) -> None:
     """Generate a YAML config template based on dataset inspection.
 
+    For MCAP sources, emits a topic config (drives the MCAP reader) since that
+    is the artifact downstream commands need. For other formats, emits a
+    conversion config (target_format / fps / camera mapping).
+
     Args:
         info: Dataset inspection info.
         output_path: Path to save the generated config.
     """
+    if info.format == "mcap":
+        _generate_mcap_topic_config(info, output_path)
+        return
+
     lines = [
         "# Forge conversion configuration",
         f"# Generated from: {info.path}",
@@ -531,6 +539,37 @@ def _generate_config_template(info: "DatasetInfo", output_path: Path) -> None:
     console.print()
     console.print(f"[green]Config template saved to:[/green] {output_path}")
     console.print("[dim]Edit the file to customize camera/field mappings before conversion.[/dim]")
+
+
+def _generate_mcap_topic_config(info: "DatasetInfo", output_path: Path) -> None:
+    """Generate an MCAP topic config from a parsed channel inventory.
+
+    Delegates to forge.formats.mcap.generate_config — the same heuristics
+    used elsewhere — and writes the result via dump_config so the YAML stays
+    in sync with the dataclass schema.
+    """
+    from forge.formats.mcap import generate_config
+    from forge.formats.mcap.topic_config import dump_config
+
+    result = generate_config(info.path)
+    if result.skipped or result.config is None:
+        console.print(
+            f"[yellow]Skipped:[/yellow] could not auto-generate MCAP topic config "
+            f"({result.reason}). No file written."
+        )
+        raise typer.Exit(0)
+
+    dump_config(result.config, output_path)
+    console.print()
+    console.print(f"[green]MCAP topic config saved to:[/green] {output_path}")
+    if result.notes:
+        console.print("[yellow]Notes:[/yellow]")
+        for note in result.notes:
+            console.print(f"  {note}")
+    console.print(
+        "[dim]Edit the YAML to refine field/topic mappings, then use it with "
+        "`forge convert <file>.mcap ./out --config <yaml>`.[/dim]"
+    )
 
 
 @app.command("convert")

@@ -11,7 +11,8 @@ A comprehensive guide to robotics dataset formats supported by Forge.
 | RoboDM | Matroska (.vla) | H.265 video | Pickle streams | High (70x) | Good | Berkeley |
 | Zarr | Zarr chunks | Per-frame arrays | Zarr arrays | Medium | Excellent | Diffusion Policy |
 | HDF5 | Single .hdf5 | Per-frame arrays | HDF5 datasets | Low-Medium | Good | robomimic, ACT |
-| Rosbag | .bag / MCAP | Compressed msgs | ROS messages | Varies | Poor | ROS |
+| MCAP | .mcap | Per-msg images / h264 | ROS2 CDR / Protobuf / JSON | zstd, lz4 | Excellent | ROS2, Foxglove |
+| Rosbag | .bag / .db3 | Compressed msgs | ROS messages | Varies | Poor | ROS1, ROS2 SQLite3 |
 
 ---
 
@@ -283,9 +284,110 @@ with h5py.File("dataset.hdf5", "r") as f:
 
 ---
 
+## MCAP
+
+**Used by:** ROS2, Foxglove Studio, modern robotics teleop / data collection
+
+MCAP is a serialization-agnostic container — it can hold ROS2 CDR, Protobuf,
+JSON, or raw bytes. Forge treats MCAP as a first-class format independent
+of the rosbag reader, with both read and write support that **does not
+require ROS to be installed** (`mcap` + `mcap-ros2-support` +
+`mcap-protobuf-support` are pure-Python).
+
+### Structure
+```
+session.mcap   (single self-contained file)
+├── header (profile: ros2 / foxglove / "")
+├── schemas (sensor_msgs/JointState, foxglove.CompressedVideo, ...)
+├── channels (one per topic, references a schema)
+├── chunks (zstd / lz4 / none)
+├── messages (per-topic, timestamped)
+├── attachments (URDF, calibration JSON, stats — optional)
+└── summary (channel/schema/chunk index for fast random access)
+```
+
+### Topic config
+MCAP topics aren't self-describing about which is "state" vs "action", so
+Forge uses a YAML topic config to drive both read and write:
+
+```yaml
+source: ./teleop_session.mcap
+episodes:
+  strategy: marker          # marker | time_gap | segment | single
+  marker_topic: /episode/start
+  min_length_frames: 30
+fields:
+  observation.state:
+    topic: /joint_states
+    field: position
+  action:
+    topic: /commanded_position
+    field: data
+  observation.images.wrist:
+    topic: /wrist_cam/image_raw/compressed
+    encoding: jpeg
+sync:
+  primary: observation.state
+  method: nearest           # nearest | interpolate | hold
+  max_skew_ms: 50
+```
+
+`forge inspect <file>.mcap --generate-config out.yaml` produces a starter
+YAML using auto-detection heuristics — `JointState` topics map to state /
+action by `cmd|target|commanded` keyword detection; `Image` /
+`CompressedImage` / `CompressedVideo` map to `observation.images.<basename>`;
+ambiguous cases emit `# TODO: pick one` comments without guessing.
+
+### Sync semantics
+`primary` field's timestamps drive frame boundaries — one Episode frame per
+primary message. For each non-primary field, Forge looks up the value at the
+primary timestamp using the configured method:
+- `nearest` — closest timestamp regardless of side
+- `interpolate` — linear interp for numeric arrays; falls back to nearest for images
+- `hold` — most recent value at-or-before (zero-order hold)
+
+If skew exceeds `max_skew_ms`, an aggregated warning is logged at end of
+episode (one per field, with count + max skew). Frames are dropped only when
+skew exceeds 10× the threshold.
+
+### Key Characteristics
+- **Container:** Single `.mcap` file with summary section for random access
+- **Encodings:** ROS2 CDR, Protobuf (Foxglove), JSON, raw bytes
+- **Compression:** zstd / lz4 / none, per-chunk
+- **Attachments:** Embed URDF, calibration, stats inside the file
+- **Self-describing:** Schema records mean readers don't need ROS installed
+
+### Pros & Cons
+| Pros | Cons |
+|------|------|
+| Self-contained, no ROS needed | Topic-based, not episode-based by default |
+| Random access via summary | Multi-rate streams need explicit sync |
+| Multiple encodings supported | Topic-to-field mapping must be configured |
+| Modern, actively maintained | Image streams may need video decoding (PyAV) |
+
+### Forge Compatibility
+```bash
+# Inspect (auto-detects channels, schemas, encodings)
+forge inspect sample_data/mcap/trossen_transfer_cube.mcap
+
+# Convert MCAP -> LeRobot v3
+forge convert teleop.mcap ./out --format lerobot-v3
+
+# Convert any format -> MCAP
+forge convert ./lerobot_dataset out.mcap --format mcap
+
+# Visualize (requires rerun-sdk)
+forge visualize teleop.mcap --backend rerun
+```
+
+---
+
 ## Rosbag
 
-**Used by:** ROS-based robots, real-world data collection
+**Used by:** ROS1 / ROS2 SQLite3 storage backends
+
+For ROS2 MCAP files, use the dedicated MCAP reader above — it doesn't
+require a ROS install.
 
 ### ROS1 (.bag)
 ```
@@ -296,16 +398,15 @@ recording.bag
 └── ...
 ```
 
-### ROS2 (MCAP)
+### ROS2 (SQLite3)
 ```
-recording.mcap
-├── /camera/image_raw      (sensor_msgs/msg/Image)
-├── /joint_states          (sensor_msgs/msg/JointState)
-└── ...
+recording/
+├── metadata.yaml
+└── recording_0.db3
 ```
 
 ### Key Characteristics
-- **Container:** Bag (ROS1) or MCAP (ROS2)
+- **Container:** Bag (ROS1) or SQLite3 directory (ROS2)
 - **Messages:** ROS message types with timestamps
 - **Topics:** Organized by ROS topic names
 - **Compression:** Optional LZ4/BZ2 per-message
@@ -385,6 +486,12 @@ forge convert groot_dataset/ ./output --format lerobot-v3
 - Need single-file simplicity
 - Working with existing HDF5 datasets
 
+### Choose MCAP when:
+- Logging from ROS2 / Foxglove tooling
+- Need self-contained files (single .mcap with embedded URDF / calibration)
+- Want random access + zstd compression in one container
+- Recording multi-encoding streams (ROS2 + Protobuf side-by-side)
+
 ---
 
 ## Conversion Matrix
@@ -400,6 +507,7 @@ LeRobot     ✓       -         ✓
 RoboDM      ✓       ✓         -
 Zarr        ✓       ✓         ✓
 HDF5        ✓       ✓         ✓
+MCAP        ✓       ✓         ✓     (and TO MCAP from any of the above)
 Rosbag      ✓       ✓         ✓
 ```
 
