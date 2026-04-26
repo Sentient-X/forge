@@ -223,6 +223,10 @@ class Frame:
     is_first: bool = False
     is_last: bool = False
 
+    # Format-specific extra fields keyed by dotted name (e.g. "observation.ee_pose").
+    # Used by readers that surface fields outside the canonical state/action/images slots.
+    extras: dict[str, Any] = field(default_factory=dict)
+
     def get_image(self, camera_name: str) -> NDArray[Any]:
         """Load and return image from specified camera.
 

@@ -13,6 +13,18 @@ def sample_data_dir() -> Path:
 
 
 @pytest.fixture
+def mcap_fixtures_dir() -> Path:
+    """Return path to MCAP fixture directory (read-only)."""
+    return Path(__file__).parent.parent / "sample_data" / "mcap"
+
+
+@pytest.fixture
+def mcap_files(mcap_fixtures_dir: Path) -> list[Path]:
+    """Return sorted list of all .mcap fixture files."""
+    return sorted(mcap_fixtures_dir.glob("*.mcap"))
+
+
+@pytest.fixture
 def temp_zarr_dataset(tmp_path: Path) -> Path:
     """Create a temporary Zarr dataset for testing."""
     zarr = pytest.importorskip("zarr")

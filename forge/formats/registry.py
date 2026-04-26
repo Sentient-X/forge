@@ -123,6 +123,7 @@ class FormatRegistry:
         "rlds",
         "zarr",
         "hdf5",
+        "mcap",  # Check before rosbag — MCAP is its own format, not ROS-only.
         "rosbag",
     ]
 

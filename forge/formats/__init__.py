@@ -32,6 +32,11 @@ def _register_formats() -> None:
         pass
 
     try:
+        from forge.formats import mcap  # noqa: F401
+    except ImportError:
+        pass
+
+    try:
         from forge.formats import rosbag  # noqa: F401
     except ImportError:
         pass
