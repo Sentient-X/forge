@@ -313,10 +313,13 @@ def generate_config(
         )
 
     # ---------------- sync ----------------
+    # 150ms default — multi-rate MCAP streams (e.g. 30Hz cameras + 14Hz joint
+    # states) routinely exceed a 50ms threshold under nearest sync without
+    # there being any real timing problem. Users tighten this when needed.
     sync = SyncPolicy(
         primary="observation.state" if "observation.state" in fields else None,
         method="nearest",
-        max_skew_ms=50.0,
+        max_skew_ms=150.0,
     )
 
     cfg = TopicConfig(
