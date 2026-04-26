@@ -10,7 +10,8 @@
 | LeRobot v3 | ✅ | ✅ | Target format for all conversions |
 | Zarr | ✅ | - | Diffusion Policy datasets |
 | HDF5 | ✅ | - | robomimic, ACT/ALOHA datasets |
-| ROS bags | ✅ | - | Raw robot recordings |
+| MCAP | ✅ | ✅ | ROS2 CDR + Foxglove Protobuf, no ROS install required |
+| ROS bags | ✅ | - | ROS1 .bag, ROS2 SQLite3 |
 
 ### Core Features
 - [x] Format auto-detection

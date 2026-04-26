@@ -192,7 +192,8 @@ forge/
 │   ├── lerobot_v3/        # LeRobot v3 reader + writer
 │   ├── zarr/              # Zarr reader
 │   ├── hdf5/              # HDF5 reader (robomimic, ACT/ALOHA)
-│   └── rosbag/            # ROS bag reader
+│   ├── mcap/              # MCAP reader + writer (ROS2 CDR + Foxglove Protobuf)
+│   └── rosbag/            # ROS1 bag + ROS2 SQLite3 reader
 ├── hub/
 │   ├── url.py             # hf:// URL parsing
 │   └── download.py        # Dataset downloading

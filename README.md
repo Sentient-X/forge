@@ -29,7 +29,7 @@ Convert between robotics dataset formats with one command. Score demonstration q
 | RoboDM | ✓ | ✓ | ✓ | Berkeley's .vla format, up to 70x compression* |
 | Zarr | ✓ | - | ✓ | Diffusion Policy, UMI |
 | HDF5 | ✓ | - | ✓ | robomimic, ACT/ALOHA |
-| MCAP | ✓ | - | ✓ | ROS2 CDR + Foxglove Protobuf, no ROS install required |
+| MCAP | ✓ | ✓ | ✓ | ROS2 CDR + Foxglove Protobuf, no ROS install required |
 | Rosbag | ✓ | - | ✓ | ROS1 .bag, ROS2 SQLite3 |
 
 *\*RoboDM requires manual installation from GitHub (see below)*
