@@ -179,7 +179,15 @@ forge/formats/mcap/
 ## Test corpus
 
 Three fixtures live under [`sample_data/mcap/`](../../../sample_data/mcap/),
-sourced from the [Rerun project](https://github.com/rerun-io/rerun/tree/main/tests/assets/mcap):
+sourced from the [Rerun project](https://github.com/rerun-io/rerun/tree/main/tests/assets/mcap).
+**They are gitignored — fetch them after a fresh clone:**
+
+```bash
+python scripts/download_mcap_fixtures.py
+```
+
+Without the fixtures, the corpus / inspect / reader test files skip cleanly
+(synthetic tests still run). The downloaded files are:
 
 | File | Profile | Encoding | Notes |
 |---|---|---|---|

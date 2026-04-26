@@ -29,6 +29,12 @@ TROSSEN = FIXTURES / "trossen_transfer_cube.mcap"
 ROS2 = FIXTURES / "supported_ros2_messages.mcap"
 GALILEO = FIXTURES / "r2b_galileo.mcap"
 
+if not all(p.exists() for p in (TROSSEN, ROS2, GALILEO)):
+    pytest.skip(
+        "MCAP fixtures missing — run `python scripts/download_mcap_fixtures.py`",
+        allow_module_level=True,
+    )
+
 
 @pytest.fixture(autouse=True)
 def _silence_sync_warnings():

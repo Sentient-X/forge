@@ -16,6 +16,12 @@ from forge.formats.mcap.topic_config import dump_config, load_config  # noqa: E4
 
 FIXTURES = Path(__file__).parent.parent / "sample_data" / "mcap"
 
+if not any(FIXTURES.glob("*.mcap")):
+    pytest.skip(
+        "MCAP fixtures missing — run `python scripts/download_mcap_fixtures.py`",
+        allow_module_level=True,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Channel inventory facts (sourced from INVENTORY.md)
