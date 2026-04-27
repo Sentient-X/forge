@@ -702,8 +702,8 @@
     </a>
   </div>
   <div class="install-bar">
-    <code><span class="dollar">$ </span><span class="cmd">pip install</span> -e ".[all]"</code>
-    <button class="copy-btn" onclick="copyText(this, 'pip install -e \".[all]\"')">
+    <code><span class="dollar">$ </span><span class="cmd">pip install</span> "forge-robotics[all]"</code>
+    <button class="copy-btn" onclick="copyText(this, 'pip install &quot;forge-robotics[all]&quot;')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     </button>
   </div>
@@ -1299,11 +1299,11 @@
     <div class="step-card">
       <div class="step-num">1</div>
       <div class="step-title">Install</div>
-      <div class="step-desc">Clone the repo and install with pip.</div>
+      <div class="step-desc">One pip install — pick the format extras you need (or grab everything).</div>
       <div class="feature-code">
-        <span class="prompt">$ </span><span class="cmd">git clone</span> <span class="arg">https://github.com/arpitg1304/forge.git</span><br>
-        <span class="prompt">$ </span><span class="cmd">cd</span> forge<br>
-        <span class="prompt">$ </span><span class="cmd">pip install</span> -e <span class="arg">".[all]"</span>
+        <span class="prompt">$ </span><span class="cmd">pip install</span> <span class="arg">"forge-robotics[mcap]"</span><br>
+        <span class="comment"># or for every supported format:</span><br>
+        <span class="prompt">$ </span><span class="cmd">pip install</span> <span class="arg">"forge-robotics[all]"</span>
       </div>
     </div>
 

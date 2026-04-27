@@ -10,6 +10,7 @@
 <h2>⚒ Robotics Data Toolkit ⚒</h2>
 <i>Convert, inspect, visualize, score, and discover robotics datasets across every major format.</i>
 <br><br>
+<a href="https://pypi.org/project/forge-robotics/"><img alt="PyPI" src="https://img.shields.io/pypi/v/forge-robotics?style=flat-square&color=6c9fff"></a>
 <a href="https://arpitg1304.github.io/forge/"><img alt="Website" src="https://img.shields.io/badge/website-live-6c9fff?style=flat-square"></a>
 <a href="https://github.com/arpitg1304/forge"><img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square"></a>
 <a href="https://github.com/arpitg1304/forge/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green?style=flat-square"></a>
@@ -51,9 +52,25 @@ Add a reader, get all writers for free. Add a writer, get all readers for free. 
 ## Quick Start
 
 ```bash
+pip install forge-robotics                  # base CLI + LeRobot v3 read/write
+pip install "forge-robotics[mcap]"          # add MCAP read/write
+pip install "forge-robotics[rlds,lerobot]"  # pick the formats you need
+pip install "forge-robotics[all]"           # everything
+```
+
+That gives you the `forge` CLI:
+```bash
+forge inspect path/to/dataset
+forge convert path/to/dataset ./out --format lerobot-v3
+forge visualize path/to/dataset
+```
+
+### Develop from source
+
+```bash
 git clone https://github.com/arpitg1304/forge.git
 cd forge
-pip install -e ".[all]"
+pip install -e ".[all,dev]"
 ```
 
 ### RoboDM Support (Optional)
