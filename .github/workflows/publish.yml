@@ -1,0 +1,70 @@
+name: publish
+
+# Publish to PyPI when a GitHub Release is created.
+#
+# Setup (one-time, in PyPI account UI):
+#   1. Visit https://pypi.org/manage/account/publishing/
+#   2. Add a "trusted publisher" with:
+#        Owner:    arpitg1304
+#        Repo:     forge
+#        Workflow: publish.yml
+#        Env:      pypi         (matches the `environment:` block below)
+#   3. No API token needed — OIDC handles auth.
+#
+# Release flow:
+#   git tag v0.2.1 && git push origin v0.2.1
+#   gh release create v0.2.1 --notes "..."
+#
+# This workflow then builds + publishes automatically.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # allow manual dry-runs to TestPyPI
+
+jobs:
+  build:
+    name: Build sdist + wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade build twine
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Validate distributions
+        run: twine check dist/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    environment:
+      name: pypi
+      url: https://pypi.org/p/forge-robotics
+    permissions:
+      id-token: write  # required for trusted publishing (OIDC)
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
