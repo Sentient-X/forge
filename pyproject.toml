@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "forge-robotics"
-version = "0.1.0"
-description = "The normalization layer for robotics data - converts between RLDS, LeRobot, Zarr, and other formats"
+version = "0.2.0"
+description = "The normalization layer for robotics data — convert between RLDS, LeRobot, Zarr, HDF5, MCAP, Rosbag, and more"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "Forge Team" }
+    { name = "Arpit Gupta", email = "arpit.wpi@gmail.com" }
 ]
-keywords = ["robotics", "datasets", "rlds", "lerobot", "data-conversion"]
+keywords = ["robotics", "datasets", "rlds", "lerobot", "mcap", "ros", "data-conversion"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -90,12 +90,27 @@ dev = [
 forge = "forge.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/your-org/forge"
-Documentation = "https://github.com/your-org/forge#readme"
-Repository = "https://github.com/your-org/forge"
+Homepage = "https://github.com/arpitg1304/forge"
+Documentation = "https://github.com/arpitg1304/forge#readme"
+Repository = "https://github.com/arpitg1304/forge"
+Issues = "https://github.com/arpitg1304/forge/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["forge"]
+# Include bundled data files (MCAP schema definitions) in the wheel.
+include = ["forge/formats/mcap/schemas/*.msg"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/forge",
+    "/tests",
+    "/docs",
+    "/scripts",
+    "/README.md",
+    "/ROADMAP.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
 
 [tool.ruff]
 line-length = 100
